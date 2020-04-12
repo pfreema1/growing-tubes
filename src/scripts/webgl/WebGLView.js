@@ -16,6 +16,11 @@ import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
 import { debounce } from '../utils/debounce';
 import Tube from '../Tube';
 
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
+import { LuminosityShader } from 'three/examples/jsm/shaders/LuminosityShader';
+import { SobelOperatorShader } from 'three/examples/jsm/shaders/SobelOperatorShader';
+
+
 export default class WebGLView {
   constructor(app) {
     this.app = app;
@@ -94,22 +99,20 @@ export default class WebGLView {
 
     this.composer.addPass(new RenderPass(this.scene, this.camera));
 
-    // const bloomPass = new BloomPass(
-    //   1, // strength
-    //   25, // kernel size
-    //   4, // sigma ?
-    //   256 // blur render target resolution
-    // );
-    // this.composer.addPass(bloomPass);
+    // // color to grayscale conversion
 
-    // const filmPass = new FilmPass(
-    //   0.35, // noise intensity
-    //   0.025, // scanline intensity
-    //   648, // scanline count
-    //   false // grayscale
-    // );
-    // filmPass.renderToScreen = true;
-    // this.composer.addPass(filmPass);
+    // this.effectGrayScale = new ShaderPass(LuminosityShader);
+    // this.composer.addPass(this.effectGrayScale);
+
+    // // you might want to use a gaussian blur filter before
+    // // the next pass to improve the result of the Sobel operator
+
+    // // Sobel operator
+    // this.effectSobel = new ShaderPass(SobelOperatorShader);
+    // this.effectSobel.uniforms['resolution'].value.x = window.innerWidth * window.devicePixelRatio;
+    // this.effectSobel.uniforms['resolution'].value.y = window.innerHeight * window.devicePixelRatio;
+    // this.composer.addPass(this.effectSobel);
+
   }
 
   initTweakPane() {

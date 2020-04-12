@@ -10,7 +10,6 @@ uniform float movementRadius;
 uniform float noiseEffect;
 
 
-
 void main() {
   vec3 offsetPosition = position;
   // noise
@@ -24,6 +23,7 @@ void main() {
 
   offsetPosition.z += wave1 + noiseOffset;
   offsetPosition.x += wave2 + noiseOffset;
+  offsetPosition.y += noiseOffset;
 
   // set varyings
   vNormal = mat3(transpose(inverse(modelMatrix))) * normal;

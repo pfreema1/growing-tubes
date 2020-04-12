@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import glslify from 'glslify';
 import basicDiffuseVert from '../shaders/basicDiffuse.vert';
 import basicDiffuseFrag from '../shaders/basicDiffuse.frag';
+import { ToonShader, ToonShader1 } from 'three/examples/jsm/shaders/ToonShader'
 
 
 export default class Tube {
@@ -51,55 +52,36 @@ export default class Tube {
         return tubeColor;
     }
 
-    initInnerTube() {
-        this.innerGeo = new THREE.CylinderBufferGeometry(this.radius, this.radius, 10, 128, 128);
-        this.innerMat = new THREE.ShaderMaterial({
-            uniforms: {
-                uTime: {
-                    value: 0.0
-                },
-                tubeColor: {
-                    value: this.returnRandomColor()
-                },
-                movementRadius: {
-                    value: this.movementRadius
-                },
-                noiseEffect: {
-                    value: this.noiseEffect
-                }
-            },
-            vertexShader: glslify(basicDiffuseVert),
-            fragmentShader: glslify(basicDiffuseFrag)
-        });
 
-        this.innerMesh = new THREE.Mesh(this.innerGeo, this.innerMat);
-
-        this.innerMesh.position.y -= 2;
-
-        this.bgScene.add(this.innerMesh);
-    }
 
     initMesh() {
 
         this.geo = new THREE.CylinderBufferGeometry(this.radius, this.radius, 10, 128, 128);
+        // this.mat = new THREE.ShaderMaterial({
+        //     uniforms: {
+        //         uTime: {
+        //             value: 0.0
+        //         },
+        //         tubeColor: {
+        //             value: this.returnRandomColor()
+        //         },
+        //         movementRadius: {
+        //             value: this.movementRadius
+        //         },
+        //         noiseEffect: {
+        //             value: this.noiseEffect
+        //         }
+        //     },
+        //     vertexShader: glslify(basicDiffuseVert),
+        //     fragmentShader: glslify(basicDiffuseFrag)
+        // });
+        // ToonShader;
+        // debugger
         this.mat = new THREE.ShaderMaterial({
-            uniforms: {
-                uTime: {
-                    value: 0.0
-                },
-                tubeColor: {
-                    value: this.returnRandomColor()
-                },
-                movementRadius: {
-                    value: this.movementRadius
-                },
-                noiseEffect: {
-                    value: this.noiseEffect
-                }
-            },
-            vertexShader: glslify(basicDiffuseVert),
-            fragmentShader: glslify(basicDiffuseFrag)
-        });
+            uniforms: ToonShader1.uniforms,
+            vertexShader: ToonShader1.vertexShader,
+            fragmentShader: ToonShader1.fragmentShader
+        })
 
         this.mesh = new THREE.Mesh(this.geo, this.mat);
 
@@ -111,7 +93,5 @@ export default class Tube {
     update(time) {
         this.mat.uniforms.uTime.value = time + this.timeOffset;
 
-        if (this.innerMat)
-            this.innerMat.uniforms.uTime.value = time + this.timeOffset + 0.1;
     }
 }
