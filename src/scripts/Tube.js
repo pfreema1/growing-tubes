@@ -94,7 +94,7 @@ export default class Tube {
             transparent: true,
             side: THREE.DoubleSide
         });
-        \
+
 
         this.mesh = new THREE.Mesh(this.geo, this.mat);
         this.mat.needsUpdate = true;
