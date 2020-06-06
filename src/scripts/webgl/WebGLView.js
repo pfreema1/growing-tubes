@@ -48,7 +48,7 @@ export default class WebGLView {
 
     this.initTubes();
 
-    this.initFlower();
+    // this.initFlower();
 
     this.initLights();
   }
@@ -259,9 +259,9 @@ export default class WebGLView {
     // this.bgScene.add(directionalLight);
     // this.bgScene.add(directionalLight.target);
 
-    const helper = new THREE.PointLightHelper(this.pointLight, 1, new THREE.Color(0xff0000));
-    console.log(helper);
-    this.bgScene.add(helper);
+    // const helper = new THREE.PointLightHelper(this.pointLight, 1, new THREE.Color(0xff0000));
+    // console.log(helper);
+    // this.bgScene.add(helper);
   }
 
   resize() {
@@ -321,11 +321,11 @@ export default class WebGLView {
     }
 
     if (this.pointLight) {
-      this.pointLight.position.set(
-        Math.sin(time * 1.5) * 3.0,
-        2.0,
-        Math.cos(time * 1.5) * 3.0
-      );
+      // this.pointLight.position.set(
+      //   Math.sin(time * 1.5) * 3.0,
+      //   2.0,
+      //   Math.cos(time * 1.5) * 3.0
+      // );
 
       // attach light to flower center
       // if (this.flower.center) {

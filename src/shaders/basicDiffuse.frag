@@ -1,27 +1,30 @@
-varying vec3 vNormal;
-uniform float u_time;
+uniform float uTime;
 uniform vec3 u_lightColor;
 uniform vec3 u_lightPos;
 uniform vec3 tubeColor;
+uniform sampler2D texture;
 
+varying vec3 vNormal;
+varying vec2 vUv;
 varying vec3 fragPos;
 
 
 
 void main() {
   
-  // vec3 color = vec3(0.0);
-  // vec3 outsideColor = vec3(0.0);
+  vec4 color = vec4(0.0);
+  vec2 uv = vUv;
 
-  // vec3 norm = normalize(vNormal);
-  // vec3 lightDir = normalize(u_lightPos - fragPos);
-  // float diff = max(dot(norm, lightDir), 0.0);
+  uv *= 2.0;
+  uv.x += uTime * 0.2;
+  uv.y -= uTime * 0.1;
+  uv.y *= 3.0;
+  uv = fract(uv);
+  vec4 textureColor = texture2D(texture, uv);
 
-  // color = mix(u_lightColor, outsideColor, 1.0 - diff);
+  color = textureColor;
+
   
 
-  vec3 color = vec3(0.0);
-  color = tubeColor;
-
-  gl_FragColor = vec4(color, 1.0);
+  gl_FragColor = color;
 }
