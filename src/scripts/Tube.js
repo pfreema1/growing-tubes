@@ -78,7 +78,8 @@ export default class Tube {
 
     initMesh() {
 
-        this.geo = new THREE.CylinderBufferGeometry(this.radius, this.radius, 10, 128, 128);
+        // this.geo = new THREE.CylinderBufferGeometry(this.radius, this.radius, 10, 128, 128);
+        this.geo = new THREE.PlaneBufferGeometry(2, 2, 32, 32);
 
         this.mat = new THREE.ShaderMaterial({
             uniforms: {
@@ -103,9 +104,31 @@ export default class Tube {
 
         this.bgScene.add(this.mesh);
 
+        this.clone = this.mesh.clone();
+        this.clone.position.z -= 0.5;
+        this.bgScene.add(this.clone);
+
+        this.clone = this.mesh.clone();
+        this.clone.position.z -= 0.7;
+        this.clone.rotation.y = Math.PI;
+        this.bgScene.add(this.clone);
+
+        this.clone = this.mesh.clone();
+        this.clone.position.z -= 0.9;
+        this.bgScene.add(this.clone);
+
+        this.clone = this.mesh.clone();
+        this.clone.position.z -= 1.1;
+        this.clone.rotation.y = Math.PI;
+        this.bgScene.add(this.clone);
+
+        this.clone = this.mesh.clone();
+        this.clone.position.z -= 1.3;
+        this.bgScene.add(this.clone);
+
         console.log(this.mesh);
 
-        this.mesh.position.x += 2;
+        // this.mesh.position.x += 2;
     }
 
     update(time) {

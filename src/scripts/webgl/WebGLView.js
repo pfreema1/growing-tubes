@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import GLTFLoader from 'three-gltf-loader';
 import glslify from 'glslify';
 import Tweakpane from 'tweakpane';
 import OrbitControls from 'three-orbitcontrols';
@@ -15,13 +14,16 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
 import { debounce } from '../utils/debounce';
 import Tube from '../Tube';
-
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
 import { LuminosityShader } from 'three/examples/jsm/shaders/LuminosityShader';
 import { SobelOperatorShader } from 'three/examples/jsm/shaders/SobelOperatorShader';
 import { VerticalBlurShader } from 'three/examples/jsm/shaders/VerticalBlurShader';
 import { OutlineEffect } from 'three/examples/jsm/effects/OutlineEffect.js';
 import Flower from '../Flower';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import Flowers from '../Flowers';
+import BgPlane from '../BgPlane';
+import Cloud from '../Cloud';
 
 
 export default class WebGLView {
@@ -46,26 +48,65 @@ export default class WebGLView {
     this.initPostProcessing();
     this.initResizeHandler();
 
-    this.initTubes();
+    // this.loadMesh();
 
-    // this.initFlower();
+    this.loadFlowers();
+
+    this.initCloud();
+
+    this.initBgPlane();
+
 
     this.initLights();
   }
 
-  initFlower() {
-    this.flower = new Flower(this.bgScene, this.bgCamera, this.pane, this.PARAMS);
+  initCloud() {
+    this.cloud = new Cloud(this.bgScene, this.bgCamera, this.pane, this.PARAMS);
   }
 
-  initTubes() {
-    this.tubes = [];
-
-    for (let i = 0; i < 1; i++) {
-      const tube = new Tube(this.bgScene, this.bgCamera, this.pane, this.PARAMS);
-
-      this.tubes.push(tube);
-    }
+  initBgPlane() {
+    this.bgPlane = new BgPlane(this.bgScene, this.bgCamera, this.pane, this.PARAMS);
   }
+
+  loadFlowers() {
+    this.flowers = new Flowers(this.bgScene, this.bgCamera, this.pane, this.PARAMS);
+  }
+
+  loadMesh() {
+    this.loader = new GLTFLoader();
+
+    this.loader.load('./flower1.glb', obj => {
+      console.log('full object:  ', obj);
+
+      this.flower = obj.scene.children[0];
+      console.log('this.flower:  ', this.flower);
+      this.flower.add(new THREE.AxesHelper());
+
+      // setup geo
+      this.flower.children[0].geometry.translate(0, 3.8, 0);
+      this.flower.children[1].geometry.translate(0, 3.8, 0);
+      this.flower.children[2].geometry.translate(0, 3.8, 0);
+
+      // setup material
+      this.flower.children[0].material = new THREE.MeshBasicMaterial({
+        color: this.flower.children[0].material.color,
+        side: THREE.DoubleSide
+      });
+      this.flower.children[0].material.needsUpdate = true;
+
+      this.flower.children[1].material = new THREE.MeshBasicMaterial({
+        color: this.flower.children[1].material.color,
+        side: THREE.DoubleSide
+      });
+      this.flower.children[1].material.needsUpdate = true;
+
+
+
+      this.bgScene.add(this.flower);
+    })
+  }
+
+
 
   initResizeHandler() {
     window.addEventListener(
@@ -111,17 +152,17 @@ export default class WebGLView {
 
     // color to grayscale conversion
 
-    // this.effectGrayScale = new ShaderPass(LuminosityShader);
-    // this.composer.addPass(this.effectGrayScale);
+    this.effectGrayScale = new ShaderPass(LuminosityShader);
+    this.composer.addPass(this.effectGrayScale);
 
 
 
 
     // Sobel operator
-    // this.effectSobel = new ShaderPass(SobelOperatorShader);
-    // this.effectSobel.uniforms['resolution'].value.x = window.innerWidth * window.devicePixelRatio;
-    // this.effectSobel.uniforms['resolution'].value.y = window.innerHeight * window.devicePixelRatio;
-    // this.composer.addPass(this.effectSobel);
+    this.effectSobel = new ShaderPass(SobelOperatorShader);
+    this.effectSobel.uniforms['resolution'].value.x = window.innerWidth * window.devicePixelRatio;
+    this.effectSobel.uniforms['resolution'].value.y = window.innerHeight * window.devicePixelRatio;
+    this.composer.addPass(this.effectSobel);
 
     // outline
     // this.outlineEffect = new OutlineEffect(this.renderer);
@@ -192,8 +233,8 @@ export default class WebGLView {
     this.height = window.innerHeight;
 
     window.addEventListener('mousemove', ({ clientX, clientY }) => {
-      this.mouse.x = clientX; //(clientX / this.width) * 2 - 1;
-      this.mouse.y = clientY; //-(clientY / this.height) * 2 + 1;
+      this.mouse.x = (clientX / this.width) * 2 - 1;
+      this.mouse.y = -(clientY / this.height) * 2 + 1;
 
       this.mouseCanvas.addTouch(this.mouse);
     });
@@ -238,29 +279,32 @@ export default class WebGLView {
       50,
       window.innerWidth / window.innerHeight,
       0.01,
-      100
+      1000
     );
     this.controls = new OrbitControls(this.bgCamera, this.renderer.domElement);
 
-    this.bgCamera.position.z = 3;
+    this.bgCamera.position.z = 300;
     this.controls.update();
 
     this.bgScene = new THREE.Scene();
   }
 
   initLights() {
-    this.pointLight = new THREE.PointLight(0xffffff, 1);
-    this.pointLight.position.set(0, 2, 3);
-    this.bgScene.add(this.pointLight);
+    // this.dim = fitPlaneToScreen(this.bgCamera, -50, window.innerWidth, window.innerHeight);
+    // this.pointLight = new THREE.PointLight(0xffffff, 10);
+    // this.pointLight.position.set(-5, -this.dim.height * 0.5, -5);
+    // this.bgScene.add(this.pointLight);
 
-    // var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    // directionalLight.position.set(1, 10, 1);
-    // directionalLight.target.position.set(-5, 0, 0);
-    // this.bgScene.add(directionalLight);
-    // this.bgScene.add(directionalLight.target);
+    var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(1, -10, 1);
+    directionalLight.target.position.set(0, 1, 0);
+    this.bgScene.add(directionalLight);
+    this.bgScene.add(directionalLight.target);
+    // const helper = new THREE.DirectionalLightHelper(directionalLight, 100, new THREE.Color(0xff0000));
+    // this.bgScene.add(helper);
 
-    // const helper = new THREE.PointLightHelper(this.pointLight, 1, new THREE.Color(0xff0000));
-    // console.log(helper);
+    // const helper = new THREE.PointLightHelper(this.pointLight, 10, new THREE.Color(0xff0000));
+    // // console.log(helper);
     // this.bgScene.add(helper);
   }
 
@@ -316,9 +360,9 @@ export default class WebGLView {
 
     }
 
-    if (this.effectSobel) {
-      this.effectSobel.uniforms['uTime'].value = time;
-    }
+    // if (this.effectSobel) {
+    //   this.effectSobel.uniforms['uTime'].value = time;
+    // }
 
     if (this.pointLight) {
       // this.pointLight.position.set(
@@ -338,8 +382,22 @@ export default class WebGLView {
       // }
     }
 
+    if (this.cloud) {
+      this.cloud.update(time);
+    }
+
     if (this.flower) {
-      this.flower.update(time);
+      this.flower.rotation.x += 0.05;
+      this.flower.rotation.z += 0.02;
+      this.flower.rotation.y += 0.03;
+    }
+
+    if (this.bgPlane) {
+      this.bgPlane.update(time);
+    }
+
+    if (this.flowers) {
+      this.flowers.update(time, this.mouse);
     }
 
     if (this.trackball) this.trackball.update();

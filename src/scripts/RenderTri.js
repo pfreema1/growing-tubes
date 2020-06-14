@@ -13,6 +13,15 @@ export default class RenderTri {
     this.mouseCanvas = mouseCanvas;
     this.textCanvas = textCanvas;
 
+    this.loader = new THREE.TextureLoader();
+
+    this.loader.load('./noise.png', () => {
+
+    })
+    this.init();
+  }
+
+  init() {
     const resolution = new THREE.Vector2();
     this.renderer.getDrawingBufferSize(resolution);
 
@@ -45,7 +54,10 @@ export default class RenderTri {
         uResolution: { value: resolution },
         uTime: {
           value: 0.0
-        }
+        },
+        // iChannel0: {
+        //   value: this.noiseTexture
+        // }
       }
     });
 
