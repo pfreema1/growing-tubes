@@ -52,9 +52,9 @@ export default class WebGLView {
 
     this.loadFlowers();
 
-    this.initCloud();
+    // this.initCloud();
 
-    this.initBgPlane();
+    // this.initBgPlane();
 
 
     this.initLights();
@@ -152,17 +152,17 @@ export default class WebGLView {
 
     // color to grayscale conversion
 
-    this.effectGrayScale = new ShaderPass(LuminosityShader);
-    this.composer.addPass(this.effectGrayScale);
+    // this.effectGrayScale = new ShaderPass(LuminosityShader);
+    // this.composer.addPass(this.effectGrayScale);
 
 
 
 
     // Sobel operator
-    this.effectSobel = new ShaderPass(SobelOperatorShader);
-    this.effectSobel.uniforms['resolution'].value.x = window.innerWidth * window.devicePixelRatio;
-    this.effectSobel.uniforms['resolution'].value.y = window.innerHeight * window.devicePixelRatio;
-    this.composer.addPass(this.effectSobel);
+    // this.effectSobel = new ShaderPass(SobelOperatorShader);
+    // this.effectSobel.uniforms['resolution'].value.x = window.innerWidth * window.devicePixelRatio;
+    // this.effectSobel.uniforms['resolution'].value.y = window.innerHeight * window.devicePixelRatio;
+    // this.composer.addPass(this.effectSobel);
 
     // outline
     // this.outlineEffect = new OutlineEffect(this.renderer);
@@ -246,7 +246,7 @@ export default class WebGLView {
     this.camera = new THREE.OrthographicCamera();
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    this.renderer.setClearColor(0xD2E9F1);
+    this.renderer.setClearColor(0xFFFFFF);
     this.renderer.autoClear = true;
 
     this.clock = new THREE.Clock();

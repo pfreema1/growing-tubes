@@ -7,7 +7,8 @@ import customToonFrag from '../shaders/customToon.frag';
 import customToonVert from '../shaders/customToon.vert';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import fitPlaneToScreen from './utils/fitPlaneToScreen';
-
+import flowerVert from '../shaders/flower.vert';
+import flowerFrag from '../shaders/flower.frag';
 
 
 export default class Flower {
@@ -20,394 +21,136 @@ export default class Flower {
         this.items = [];
         this.dummy = new THREE.Object3D();
 
-        this.numClones = 10;
+        this.numClones = 3;
 
         this.dim = fitPlaneToScreen(this.bgCamera, -50, window.innerWidth, window.innerHeight);
 
 
         this.loader = new GLTFLoader();
 
-        this.loadFlower1();
-        this.loadFlower2();
-        this.loadFlower3();
-        this.loadFlower4();
-        this.loadFlower5();
-        this.loadFlower6();
-
-        this.loadLeaf1();
+        this.initPane();
+        this.loadMeshes();
 
 
     }
 
-    loadLeaf1() {
-        this.loader.load('./leaf1.glb', obj => {
-            // debugger;
-            let flower = obj.scene.children[0];
-            // flower.add(new THREE.AxesHelper());
+    initPane() {
+        this.PARAMS.mod1 = 0.0;
+        this.PARAMS.mod2 = 0.0;
 
-            // setup geo
-            // flower.children[0].geometry.translate(0, 3.8, 0);
-            // flower.children[1].geometry.translate(0, 3.8, 0);
-            // flower.children[2].geometry.translate(0, 3.8, 0);
-
-            // setup material
-            flower.material = new THREE.MeshBasicMaterial({
-                color: flower.material.color,
-                side: THREE.DoubleSide
+        this.pane.addInput(this.PARAMS, 'mod1', {
+            min: -1.0,
+            max: 1.0
+        }).on('change', value => {
+            this.items.forEach(item => {
+                item.material.uniforms.mod1.value = value;
             });
-            flower.material.needsUpdate = true;
+        });
 
-            // flower.children[1].material = new THREE.MeshBasicMaterial({
-            //     color: flower.children[1].material.color,
-            //     side: THREE.DoubleSide
-            // });
-            // flower.children[1].material.needsUpdate = true;
-
-            // flower.children[2].material = new THREE.MeshBasicMaterial({
-            //     color: flower.children[2].material.color,
-            //     side: THREE.DoubleSide
-            // });
-            // flower.children[2].material.needsUpdate = true;
-
-            // flower.children[3].material = new THREE.MeshBasicMaterial({
-            //     color: flower.children[3].material.color,
-            //     side: THREE.DoubleSide
-            // });
-            // flower.children[3].material.needsUpdate = true;
-
-
-
-            this.randomPos(flower.position);
-            this.randomRot(flower.rotation);
-            this.randomScale(flower.scale);
-            this.items.push(flower);
-            this.bgScene.add(flower);
-
-
-            for (let i = 0; i < this.numClones; i++) {
-                let clone;
-                clone = flower.clone();
-                this.randomPos(clone.position);
-                this.randomRot(clone.rotation);
-                this.randomScale(clone.scale);
-                this.items.push(clone);
-                this.bgScene.add(clone);
-
-            }
-
-
+        this.pane.addInput(this.PARAMS, 'mod2', {
+            min: -1.0,
+            max: 1.0
+        }).on('change', value => {
+            this.items.forEach(item => {
+                item.material.uniforms.mod2.value = value;
+            });
         });
     }
 
-    loadFlower6() {
-        this.loader.load('./flower6.glb', obj => {
-            let flower = obj.scene.children[0];
-            // flower.add(new THREE.AxesHelper());
+    loadMeshes() {
+        const urls = ['./flower1.glb', './flower2.glb', './flower3.glb', './flower4.glb', './flower5.glb', './flower6.glb', './leaf1.glb'];
 
-            // setup geo
-            // flower.children[0].geometry.translate(0, 3.8, 0);
-            // flower.children[1].geometry.translate(0, 3.8, 0);
-            // flower.children[2].geometry.translate(0, 3.8, 0);
+        // const urls = ['./flower6.glb'];
 
-            // setup material
-            flower.children[0].material = new THREE.MeshBasicMaterial({
-                color: flower.children[0].material.color,
-                side: THREE.DoubleSide
-            });
-            flower.children[0].material.needsUpdate = true;
+        urls.forEach(url => {
 
-            flower.children[1].material = new THREE.MeshBasicMaterial({
-                color: flower.children[1].material.color,
-                side: THREE.DoubleSide
-            });
-            flower.children[1].material.needsUpdate = true;
+            this.loader.load(url, obj => {
+                let mesh = obj.scene.children[0];
+                // debugger;
+                console.log('mesh:  ', mesh);
 
-            flower.children[2].material = new THREE.MeshBasicMaterial({
-                color: flower.children[2].material.color,
-                side: THREE.DoubleSide
-            });
-            flower.children[2].material.needsUpdate = true;
+                mesh.material = new THREE.ShaderMaterial({
+                    uniforms: {
+                        time: {
+                            value: 0.0
+                        },
+                        worldPos: {
+                            value: new THREE.Vector3(0, 0, 0)
+                        },
+                        mouse: {
+                            value: new THREE.Vector2(0, 0, 0)
+                        },
+                        resolution: {
+                            value: new THREE.Vector2(window.innerWidth, window.innerHeight)
+                        },
+                        mod1: {
+                            value: this.PARAMS.mod1
+                        },
+                        mod2: {
+                            value: this.PARAMS.mod2
+                        },
+                        dimWidth: {
+                            value: new THREE.Vector2(this.dim.width / 2 * -1, this.dim.width / 2)
+                        }
+                    },
+                    vertexShader: flowerVert,
+                    fragmentShader: flowerFrag,
+                    side: THREE.DoubleSide
+                });
 
-            // flower.children[3].material = new THREE.MeshBasicMaterial({
-            //     color: flower.children[3].material.color,
-            //     side: THREE.DoubleSide
-            // });
-            // flower.children[3].material.needsUpdate = true;
+                // mesh.geometry = new THREE.OctahedronBufferGeometry(1);
+
+                // add barycentric coords attribute
+                let pos = mesh.geometry.attributes.position;
+                let count = pos.length / 3;
+
+                let bary = [];
+
+                for (let i = 0; i < count; i++) {
+                    bary.push(0, 0, 1, 0, 1, 0, 1, 0, 0);
+                }
+
+                bary = new Float32Array(bary);
+                mesh.geometry.setAttribute('barycentric', new THREE.BufferAttribute(bary, 3));
+
+                mesh.material.needsUpdate = true;
+                mesh.geometry.needsUpdate = true;
 
 
+                this.randomPos(mesh.position);
+                this.randomRot(mesh.rotation);
+                this.randomScale(mesh.scale);
+                this.items.push(mesh);
+                this.bgScene.add(mesh);
 
-            this.randomPos(flower.position);
-            this.randomRot(flower.rotation);
-            this.randomScale(flower.scale);
-            this.items.push(flower);
-            this.bgScene.add(flower);
 
-            for (let i = 0; i < this.numClones; i++) {
-                let clone;
-                clone = flower.clone();
-                this.randomPos(clone.position);
-                this.randomRot(clone.rotation);
-                this.randomScale(clone.scale);
-                this.items.push(clone);
-                this.bgScene.add(clone);
+                for (let i = 0; i < this.numClones; i++) {
+                    let clone;
+                    clone = mesh.clone();
+                    this.randomPos(clone.position);
+                    this.randomRot(clone.rotation);
+                    this.randomScale(clone.scale);
+                    this.items.push(clone);
+                    this.bgScene.add(clone);
 
-            }
-        });
+                }
+            })
+        })
     }
 
-    loadFlower5() {
-        this.loader.load('./flower5.glb', obj => {
-            let flower = obj.scene.children[0];
-            // flower.add(new THREE.AxesHelper());
 
-            // setup geo
-            // flower.children[0].geometry.translate(0, 3.8, 0);
-            // flower.children[1].geometry.translate(0, 3.8, 0);
-            // flower.children[2].geometry.translate(0, 3.8, 0);
-
-            // setup material
-            flower.children[0].material = new THREE.MeshBasicMaterial({
-                color: flower.children[0].material.color,
-                side: THREE.DoubleSide
-            });
-            flower.children[0].material.needsUpdate = true;
-
-            flower.children[1].material = new THREE.MeshBasicMaterial({
-                color: flower.children[1].material.color,
-                side: THREE.DoubleSide
-            });
-            flower.children[1].material.needsUpdate = true;
-
-            flower.children[2].material = new THREE.MeshBasicMaterial({
-                color: flower.children[2].material.color,
-                side: THREE.DoubleSide
-            });
-            flower.children[2].material.needsUpdate = true;
-
-            // flower.children[3].material = new THREE.MeshBasicMaterial({
-            //     color: flower.children[3].material.color,
-            //     side: THREE.DoubleSide
-            // });
-            // flower.children[3].material.needsUpdate = true;
-
-
-
-
-            this.randomPos(flower.position);
-            this.randomRot(flower.rotation);
-            this.randomScale(flower.scale);
-            this.items.push(flower);
-            this.bgScene.add(flower);
-
-            for (let i = 0; i < this.numClones; i++) {
-                let clone;
-                clone = flower.clone();
-                this.randomPos(clone.position);
-                this.randomRot(clone.rotation);
-                this.randomScale(clone.scale);
-                this.items.push(clone);
-                this.bgScene.add(clone);
-
-            }
-        });
-    }
-
-    loadFlower4() {
-        this.loader.load('./flower4.glb', obj => {
-            let flower = obj.scene.children[0];
-            // flower.add(new THREE.AxesHelper());
-            // debugger;
-
-            // setup geo
-            // flower.children[0].geometry.translate(0, 3.8, 0);
-            // flower.children[1].geometry.translate(0, 3.8, 0);
-            // flower.children[2].geometry.translate(0, 3.8, 0);
-
-            // setup material
-            flower.children[0].material = new THREE.MeshBasicMaterial({
-                color: flower.children[0].material.color,
-                side: THREE.DoubleSide
-            });
-            flower.children[0].material.needsUpdate = true;
-
-            flower.children[1].material = new THREE.MeshBasicMaterial({
-                color: flower.children[1].material.color,
-                side: THREE.DoubleSide
-            });
-            flower.children[1].material.needsUpdate = true;
-
-            flower.children[2].material = new THREE.MeshBasicMaterial({
-                color: flower.children[2].material.color,
-                side: THREE.DoubleSide
-            });
-            flower.children[2].material.needsUpdate = true;
-
-            flower.children[3].material = new THREE.MeshBasicMaterial({
-                color: flower.children[3].material.color,
-                side: THREE.DoubleSide
-            });
-            flower.children[3].material.needsUpdate = true;
-
-
-
-
-
-
-            this.randomPos(flower.position);
-            this.randomRot(flower.rotation);
-            this.randomScale(flower.scale);
-            this.items.push(flower);
-            this.bgScene.add(flower);
-
-            for (let i = 0; i < this.numClones; i++) {
-                let clone;
-                clone = flower.clone();
-                this.randomPos(clone.position);
-                this.randomRot(clone.rotation);
-                this.randomScale(clone.scale);
-                this.items.push(clone);
-                this.bgScene.add(clone);
-
-            }
-        });
-    }
-
-    loadFlower3() {
-        this.loader.load('./flower3.glb', obj => {
-            let flower = obj.scene.children[0];
-            // flower.add(new THREE.AxesHelper());
-
-            // setup geo
-            flower.children[0].geometry.translate(0, 3.8, 0);
-            flower.children[1].geometry.translate(0, 3.8, 0);
-            flower.children[2].geometry.translate(0, 3.8, 0);
-
-            // setup material
-            flower.children[0].material = new THREE.MeshBasicMaterial({
-                color: flower.children[0].material.color,
-                side: THREE.DoubleSide
-            });
-            flower.children[0].material.needsUpdate = true;
-
-            flower.children[1].material = new THREE.MeshBasicMaterial({
-                color: flower.children[1].material.color,
-                side: THREE.DoubleSide
-            });
-            flower.children[1].material.needsUpdate = true;
-
-            this.randomPos(flower.position);
-            this.randomRot(flower.rotation);
-            this.randomScale(flower.scale);
-            this.items.push(flower);
-            this.bgScene.add(flower);
-
-            for (let i = 0; i < this.numClones; i++) {
-                let clone;
-                clone = flower.clone();
-                this.randomPos(clone.position);
-                this.randomRot(clone.rotation);
-                this.randomScale(clone.scale);
-                this.items.push(clone);
-                this.bgScene.add(clone);
-
-            }
-        });
-    }
-
-    loadFlower2() {
-        this.loader.load('./flower2.glb', obj => {
-            let flower = obj.scene.children[0];
-            // flower.add(new THREE.AxesHelper());
-
-            // setup geo
-            flower.children[0].geometry.translate(0, 3.8, 0);
-            flower.children[1].geometry.translate(0, 3.8, 0);
-            flower.children[2].geometry.translate(0, 3.8, 0);
-
-            // setup material
-            flower.children[0].material = new THREE.MeshBasicMaterial({
-                color: flower.children[0].material.color,
-                side: THREE.DoubleSide
-            });
-            flower.children[0].material.needsUpdate = true;
-
-            flower.children[1].material = new THREE.MeshBasicMaterial({
-                color: flower.children[1].material.color,
-                side: THREE.DoubleSide
-            });
-            flower.children[1].material.needsUpdate = true;
-
-            this.randomPos(flower.position);
-            this.randomRot(flower.rotation);
-            this.randomScale(flower.scale);
-            this.items.push(flower);
-            this.bgScene.add(flower);
-
-            for (let i = 0; i < this.numClones; i++) {
-                let clone;
-                clone = flower.clone();
-                this.randomPos(clone.position);
-                this.randomRot(clone.rotation);
-                this.randomScale(clone.scale);
-                this.items.push(clone);
-                this.bgScene.add(clone);
-
-            }
-        });
-    }
-
-    loadFlower1() {
-        this.loader.load('./flower1.glb', obj => {
-            let flower = obj.scene.children[0];
-            // flower.add(new THREE.AxesHelper());
-
-            // setup geo
-            flower.children[0].geometry.translate(0, 3.8, 0);
-            flower.children[1].geometry.translate(0, 3.8, 0);
-            flower.children[2].geometry.translate(0, 3.8, 0);
-
-            // setup material
-            flower.children[0].material = new THREE.MeshBasicMaterial({
-                color: flower.children[0].material.color,
-                side: THREE.DoubleSide
-            });
-            flower.children[0].material.needsUpdate = true;
-
-            flower.children[1].material = new THREE.MeshBasicMaterial({
-                color: flower.children[1].material.color,
-                side: THREE.DoubleSide
-            });
-            flower.children[1].material.needsUpdate = true;
-
-            this.randomPos(flower.position);
-            this.randomRot(flower.rotation);
-            this.randomScale(flower.scale);
-            this.items.push(flower);
-            this.bgScene.add(flower);
-
-            for (let i = 0; i < this.numClones; i++) {
-                let clone;
-                clone = flower.clone();
-                this.randomPos(clone.position);
-                this.randomRot(clone.rotation);
-                this.randomScale(clone.scale);
-                this.items.push(clone);
-                this.bgScene.add(clone);
-
-            }
-        });
-    }
 
     randomScale(scale) {
         const scaleSpread = 1.0;
+        const scaleMin = 2;
 
-        scale.set(Math.random() * scaleSpread + 1, Math.random() * scaleSpread + 1, Math.random() * scaleSpread + 1);
+        scale.set(Math.random() * scaleSpread + scaleMin, Math.random() * scaleSpread + scaleMin, Math.random() * scaleSpread + scaleMin);
     }
 
     randomPos(position) {
         const xSpread = this.dim.width;
-        const zSpread = THREE.Math.mapLinear(Math.random(), 0.0, 1.0, -100, 200);
-        const yPos = THREE.Math.mapLinear(Math.random(), 0.0, 1.0, (-this.dim.height / 2) * 0.2, (this.dim.height / 2) * 0.2);
+        const zSpread = THREE.Math.mapLinear(Math.random(), 0.0, 1.0, -200, 200);
+        const yPos = THREE.Math.mapLinear(Math.random(), 0.0, 1.0, (-this.dim.height / 2) * 0.35, (this.dim.height / 2) * 0.35);
 
         position.set(Math.random() * xSpread - (xSpread / 2), yPos, Math.random() * zSpread);
 
@@ -453,17 +196,16 @@ export default class Flower {
 
     update(time, mouse) {
         this.items.forEach(item => {
-            item.position.x += 1;
-
-            // item.position.y += mouse.y;
-
+            item.position.x += 2;
 
             item.rotation.x += 0.01;
             item.rotation.z += 0.02;
 
 
 
-
+            item.material.uniforms.time.value = time;
+            item.material.uniforms.worldPos.value = item.position;
+            item.material.uniforms.mouse.value = mouse;
 
             if (item.position.x > this.dim.width * 0.5) {
                 item.position.x = -this.dim.width * 0.5;
