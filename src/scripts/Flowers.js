@@ -196,7 +196,7 @@ export default class Flower {
 
     update(time, mouse) {
         this.items.forEach(item => {
-            item.position.x += 2;
+            item.position.x += 1.3;
 
             item.rotation.x += 0.01;
             item.rotation.z += 0.02;

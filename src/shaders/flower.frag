@@ -38,6 +38,7 @@ void main() {
     float yStep = step(b.y, width);
     float zStep = step(b.z, width);
     float border = max(max(xStep, yStep), zStep);
+    // vec3 mixedColor = mix(vec3(0.91,0.93,0.10), vec3(0.28,0.42,0.86), border);
     vec3 color = vec3(border);
 
     // gl_FragColor = vec4(vUv. 0.0, 1.0);

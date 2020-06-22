@@ -2,6 +2,7 @@ uniform float time;
 varying vec2 vUv;
 varying vec4 vPosition;
 uniform vec2 pixels;
+uniform vec2 mouse;
 
 attribute vec3 barycentric;
 
@@ -11,5 +12,7 @@ varying vec4 worldXPos;
 void main() {
     vUv = uv;
     vBarycentric = barycentric;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    
+    vec3 modPos = position + (normal * mouse.x * 3.0);
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(modPos, 1.0);
 }
