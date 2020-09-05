@@ -186,6 +186,7 @@ export default class WebGLView {
   }
 
   initTweakPane() {
+    // return;
     this.pane = new Tweakpane();
 
     this.PARAMS.blurAmt = 0.0;
@@ -221,6 +222,8 @@ export default class WebGLView {
     }).on('change', value => {
       this.bloomPass.radius = value;
     });
+
+    this.pane.containerElem_.style.display = 'none';
   }
 
   initMouseCanvas() {

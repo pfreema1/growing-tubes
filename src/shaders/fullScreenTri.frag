@@ -79,11 +79,10 @@ void main() {
     vec2 uv = gl_FragCoord.xy / uResolution.xy;
     // vec4 color = vec4(0.0);
     vec4 sceneColor = texture2D(uScene, uv);
+    // vec4 offsetColor1 = texture2D(uScene, vec2(uv.x + 0.05, uv.y));
 
 
     vec4 color = sceneColor;
-    
-
     
     
     gl_FragColor = vec4(color);
